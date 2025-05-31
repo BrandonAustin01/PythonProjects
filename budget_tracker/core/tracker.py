@@ -129,3 +129,84 @@ def add_income():
     logger.info(f"Added income: {description}, Amount: {amount}, Category: {category}")
 
     input("\nPress Enter to return to the main menu...")
+
+# core/tracker.py
+
+from core.storage import load_data, save_data
+from rich.console import Console
+from rich.prompt import Prompt
+from rich.panel import Panel
+from rich.table import Table
+
+console = Console()
+
+def remove_expense():
+    console.rule("[bold red]➖ Remove Expense")
+
+    # Load all transactions
+    transactions = load_data()
+
+    # Create a list of indexes for expenses (track actual index in original list)
+    expenses = [(i, t) for i, t in enumerate(transactions) if t.get("type") == "expense"]
+
+    if not expenses:
+        console.print("[yellow]No expenses found to remove.[/yellow]")
+        input("\nPress Enter to return to the main menu...")
+        return
+
+    # Display expenses in a table
+    table = Table(title="Expenses", box=None, header_style="bold magenta")
+    table.add_column("#", style="dim", width=4)
+    table.add_column("Description", style="white")
+    table.add_column("Amount", style="bold", justify="right")
+    table.add_column("Category", style="cyan")
+    table.add_column("Timestamp", style="dim")
+
+    for display_index, (_, expense) in enumerate(expenses, 1):
+        table.add_row(
+            str(display_index),
+            expense["description"],
+            f"[red]${expense['amount']:.2f}[/red]",
+            expense["category"],
+            expense["timestamp"].split("T")[0] + " " + expense["timestamp"].split("T")[1][:8]
+        )
+
+    console.print(table)
+
+    # Ask user which expense to remove
+    while True:
+        try:
+            choice = int(Prompt.ask("Enter the number of the expense to remove (0 to cancel)"))
+            if choice == 0:
+                console.print("[yellow]Operation cancelled.[/yellow]")
+                return
+            if 1 <= choice <= len(expenses):
+                break
+            else:
+                console.print("[red]Invalid number. Please choose from the list.[/red]")
+        except ValueError:
+            console.print("[red]Invalid input. Please enter a number.[/red]")
+
+    # Get actual index and transaction object from original list
+    real_index, removed_expense = expenses[choice - 1]
+
+    # Remove from original transaction list by index
+    del transactions[real_index]
+
+    # Save updated data
+    save_data(transactions)
+
+    # Show success message
+    console.print(Panel.fit(
+        f"[bold red]Expense removed successfully![/bold red]\n\n"
+        f"💬 [cyan]Description:[/cyan] {removed_expense['description']}\n"
+        f"💰 [cyan]Amount:[/cyan] ${removed_expense['amount']:.2f}\n"
+        f"📂 [cyan]Category:[/cyan] {removed_expense['category']}\n"
+        f"🕒 [cyan]Timestamp:[/cyan] {removed_expense['timestamp']}",
+        title="Removed",
+        border_style="red"
+    ))
+
+    logger.info(f"Removed expense: {removed_expense['description']}, Amount: {removed_expense['amount']}, Category: {removed_expense['category']}")
+
+    input("\nPress Enter to return to the main menu...")

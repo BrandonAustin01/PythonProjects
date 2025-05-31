@@ -1,0 +1,10 @@
+body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+    padding: 2rem;
+}
+code {
+    background: #333;
+    color: #fff;
+}
