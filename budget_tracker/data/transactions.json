@@ -1,0 +1,16 @@
+[
+    {
+        "type": "expense",
+        "description": "Car Payment",
+        "amount": 576.18,
+        "category": "Vehicle",
+        "timestamp": "2025-05-30T23:09:51.115599"
+    },
+    {
+        "type": "expense",
+        "description": "Car Insurance",
+        "amount": 300.0,
+        "category": "Vehicle",
+        "timestamp": "2025-05-30T23:18:04.955848"
+    }
+]
